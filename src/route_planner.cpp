@@ -12,7 +12,6 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
     // Store the nodes you find in the RoutePlanner's start_node and end_node attributes.
     start_node = &m_Model.FindClosestNode(start_x, start_y);
     end_node = &m_Model.FindClosestNode(end_x, end_y);
-    // not sure why these need a & in front of them?
 }
 
 
@@ -100,7 +99,7 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
     path_found.emplace_back(*current_node);
 
     // https://www.geeksforgeeks.org/how-to-reverse-a-vector-using-stl-in-c/
-    std::reverse(path_found.begin(), path_found.end()):
+    std::reverse(path_found.begin(), path_found.end());
 
     distance *= m_Model.MetricScale(); // Multiply the distance by the scale of the map to get meters.
     return path_found;
@@ -116,22 +115,26 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 // - Store the final path in the m_Model.path attribute before the method exits. This path will then be displayed on the map tile.
 
 void RoutePlanner::AStarSearch() {
-    RouteModel::Node *current_node = nullptr;
-    std::vector<RouteModel::Node> final_path;
+  RouteModel::Node *current_node = nullptr;
+  std::vector<RouteModel::Node> final_path;
 
-    // Implement your solution here.
-    current_node = start_node;
-    open_list.push_back(current_node);
+  current_node = start_node;
+  current_node->visited=true;
 
-    while(open_list.size() > 0){
-      AddNeighbors(current_node);
-      current_node = NextNode();
+  open_list.push_back(current_node);
 
-      if((current_node->x == end_node->x) && (current_node->y == end_node->y)){
-        final_path = ConstructFinalPath(current_node);
-      }
+  while((open_list.size() > 0) && (current_node!=end_node)){
+    current_node = NextNode();
+
+    if(current_node->distance(*this->end_node)==0){
+      final_path = ConstructFinalPath(current_node);
+      break;
     }
+    else{
+      AddNeighbors(current_node);
+    }
+  }
 
-    m_Model.path = final_path;
+  m_Model.path = final_path;
 
 }
