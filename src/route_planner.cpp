@@ -56,21 +56,14 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Return the pointer.
 
 RouteModel::Node *RoutePlanner::NextNode() {
-  RouteModel::Node min_node;
-  min_node.h_value = 1073741823; // 2147483647/2
-  min_node.g_value = 1073741823;
+  // https://www.geeksforgeeks.org/sort-c-stl/
+  std::sort(open_list.begin(), open_list.end(), [](const auto &first, const auto &second){return (first->h_value + first->g_value) > (second->h_value + second->g_value);});
 
-  RouteModel::Node* pmin_node = &min_node;
+  RouteModel::Node* pmin_node = open_list.back();
 
-  for(RouteModel::Node* check_node : open_list){
-    if(((check_node->h_value) + (check_node->g_value)) < ((min_node.h_value) + (min_node.g_value))){
-        min_node.h_value = (check_node->h_value);
-        min_node.g_value = (check_node->g_value);
-        pmin_node = check_node;
-    }
-  }
-
+  // https://stackoverflow.com/questions/26567687/how-to-erase-vector-element-by-pointer
   open_list.erase(std::remove(open_list.begin(), open_list.end(), pmin_node), open_list.end());
+
   return pmin_node;
 }
 
